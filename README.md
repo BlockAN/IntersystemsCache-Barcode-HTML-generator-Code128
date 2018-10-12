@@ -8,7 +8,7 @@ https://www.webcitation.org/66t8IbBVl?url=http://tradepilot.ru/goods-marks/code1
 Генерация состоит из двух фаз:
 1. Определение кодовой последовательности, это основной технически сложный момент
  ```
->w ##class(Lib.BarCode128).GetCodeLineForText("1234")\
+>w ##class(Lib.BarCode128).GetCodeLineForText("1234")
 2112321122321311231212412331112
 ``` 
 Понимать эту последовательность нужно так:
