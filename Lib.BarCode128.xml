@@ -1,0 +1,441 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2017.2.1 (Build 801_3U)" ts="2018-10-13 00:17:54">
+<Class name="Lib.BarCode128">
+<Description>
+Генератор штрих-кодов в режиме Code-128
+см. https://ru.wikipedia.org/wiki/Code_128
+см. https://www.webcitation.org/66t8IbBVl?url=http://tradepilot.ru/goods-marks/code128</Description>
+<TimeChanged>64932,83329.51246</TimeChanged>
+<TimeCreated>64932,64865.696273</TimeCreated>
+
+<Method name="GenerateHtml">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>text</FormalSpec>
+<Implementation><![CDATA[
+	s codeline=..GetCodeLineForText(text)
+
+	s black=1
+	s reply=""
+	for i=1:1:$l(codeline)
+	{
+		s width=$e(codeline,i)
+		for j=1:1:width
+		{
+			s reply=reply_"<td style=""background-color:"_$select(black:"black",1:"inherit")_"""></td>"
+		}
+		s black='black
+	}
+	ret "<table style=""width:100%;height:100%"" cellpadding=0 cellspacing=0 border=0><tr>"_reply_"</tr></table>"
+]]></Implementation>
+</Method>
+
+<Method name="GetCodeLineForText">
+<Description>
+Вернет последовательность троичного кода (1,2,3) для последующей отрисовки
+w ##class(Lib.BarCode128).GetCodeLineForText("123456789")</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>text:%String</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	s mode		="" ;в теории может быть A, B, C, но А мы использовать не будем
+	s startB	=104
+	s startC	=105
+	s stop		=106
+	s switchToB	=100
+	s switchToC	=99
+	
+	s codeline=""
+	s symbolWeight=1
+	s controlSumm=0
+	s pos=1
+	for
+	{
+		;всегда пробуем сначала двухзначные "символы" для кода C
+		s symbol=$e(text,pos,pos+1) 
+		quit:symbol="" ;строка закончилась
+		
+		s symbolCode=..GetCSymbolCode(symbol)
+		if symbolCode'=""
+		{
+			if mode="" 
+			{
+				s codeline=..GetCodeLineForValue(startC)
+				s controlSumm=startC
+			}
+			elseif mode="B"
+			{
+				s codeline=codeline_..GetCodeLineForValue(switchToC)
+				s controlSumm=controlSumm+(switchToC*symbolWeight)
+				s symbolWeight=symbolWeight+1
+			}
+			s mode="C"
+			
+			s codeline=codeline_..GetCodeLineForValue(symbolCode)
+			s controlSumm=controlSumm+(symbolCode*symbolWeight)
+
+			s symbolWeight=symbolWeight+1
+			s pos=pos+$l(symbol)
+			continue
+		}
+
+		;а если не получилось - то код B
+		s symbol=$e(text,pos,pos) 
+		s symbolCode=..GetBSymbolCode(symbol)
+		if symbolCode'=""
+		{
+			if mode="" 
+			{
+				s codeline=..GetCodeLineForValue(startB)
+				s controlSumm=startB
+			}
+			elseif mode="C" 
+			{
+				s codeline=codeline_..GetCodeLineForValue(switchToB)
+				s controlSumm=controlSumm+(switchToB*symbolWeight)
+				s symbolWeight=symbolWeight+1
+			}
+			s mode="B"			
+			s codeline=codeline_..GetCodeLineForValue(symbolCode)
+			s controlSumm=controlSumm+(symbolCode*symbolWeight)
+			
+			s symbolWeight=symbolWeight+1
+			s pos=pos+$l(symbol)
+			continue
+		}
+		ret "" ;произошла ошибка, ничего кодировать не будем
+	}
+	s codeline=codeline_..GetCodeLineForValue(controlSumm#103)
+	s codeline=codeline_..GetCodeLineForValue(stop)
+	ret codeline
+]]></Implementation>
+</Method>
+
+<Method name="GetBSymbolCode">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>symbol</FormalSpec>
+<Implementation><![CDATA[
+ ret:symbol=" " 0
+ ret:symbol="!" 1
+ ret:symbol="""" 2
+ ret:symbol="#" 3
+ ret:symbol="$" 4
+ ret:symbol="%" 5
+ ret:symbol="&" 6
+ ret:symbol="'" 7
+ ret:symbol="(" 8
+ ret:symbol=")" 9
+ ret:symbol="*" 10
+ ret:symbol="+" 11
+ ret:symbol="," 12
+ ret:symbol="-" 13
+ ret:symbol="." 14
+ ret:symbol="/" 15
+ ret:symbol="0" 16
+ ret:symbol="1" 17
+ ret:symbol="2" 18
+ ret:symbol="3" 19
+ ret:symbol="4" 20
+ ret:symbol="5" 21
+ ret:symbol="6" 22
+ ret:symbol="7" 23
+ ret:symbol="8" 24
+ ret:symbol="9" 25
+ ret:symbol=":" 26
+ ret:symbol=";" 27
+ ret:symbol="<" 28
+ ret:symbol="=" 29
+ ret:symbol=">" 30
+ ret:symbol="?" 31
+ ret:symbol="@" 32
+ ret:symbol="A" 33
+ ret:symbol="B" 34
+ ret:symbol="C" 35
+ ret:symbol="D" 36
+ ret:symbol="E" 37
+ ret:symbol="F" 38
+ ret:symbol="G" 39
+ ret:symbol="H" 40
+ ret:symbol="I" 41
+ ret:symbol="J" 42
+ ret:symbol="K" 43
+ ret:symbol="L" 44
+ ret:symbol="M" 45
+ ret:symbol="N" 46
+ ret:symbol="O" 47
+ ret:symbol="P" 48
+ ret:symbol="Q" 49
+ ret:symbol="R" 50
+ ret:symbol="S" 51
+ ret:symbol="T" 52
+ ret:symbol="U" 53
+ ret:symbol="V" 54
+ ret:symbol="W" 55
+ ret:symbol="X" 56
+ ret:symbol="Y" 57
+ ret:symbol="Z" 58
+ ret:symbol="[" 59
+ ret:symbol="\" 60
+ ret:symbol="]" 61
+ ret:symbol="^" 62
+ ret:symbol="_" 63
+ ret:symbol="`" 64
+ ret:symbol="a" 65
+ ret:symbol="b" 66
+ ret:symbol="c" 67
+ ret:symbol="d" 68
+ ret:symbol="e" 69
+ ret:symbol="f" 70
+ ret:symbol="g" 71
+ ret:symbol="h" 72
+ ret:symbol="i" 73
+ ret:symbol="j" 74
+ ret:symbol="k" 75
+ ret:symbol="l" 76
+ ret:symbol="m" 77
+ ret:symbol="n" 78
+ ret:symbol="o" 79
+ ret:symbol="p" 80
+ ret:symbol="q" 81
+ ret:symbol="r" 82
+ ret:symbol="s" 83
+ ret:symbol="t" 84
+ ret:symbol="u" 85
+ ret:symbol="v" 86
+ ret:symbol="w" 87
+ ret:symbol="x" 88
+ ret:symbol="y" 89
+ ret:symbol="z" 90
+ ret:symbol="{" 91
+ ret:symbol="|" 92
+ ret:symbol="}" 93
+ ret:symbol="~" 94
+ ret ""
+]]></Implementation>
+</Method>
+
+<Method name="GetCSymbolCode">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>symbol:%String</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+ ret:symbol="00" 0
+ ret:symbol="01" 1
+ ret:symbol="02" 2
+ ret:symbol="03" 3
+ ret:symbol="04" 4
+ ret:symbol="05" 5
+ ret:symbol="06" 6
+ ret:symbol="07" 7
+ ret:symbol="08" 8
+ ret:symbol="09" 9
+ ret:symbol="10" 10
+ ret:symbol="11" 11
+ ret:symbol="12" 12
+ ret:symbol="13" 13
+ ret:symbol="14" 14
+ ret:symbol="15" 15
+ ret:symbol="16" 16
+ ret:symbol="17" 17
+ ret:symbol="18" 18
+ ret:symbol="19" 19
+ ret:symbol="20" 20
+ ret:symbol="21" 21
+ ret:symbol="22" 22
+ ret:symbol="23" 23
+ ret:symbol="24" 24
+ ret:symbol="25" 25
+ ret:symbol="26" 26
+ ret:symbol="27" 27
+ ret:symbol="28" 28
+ ret:symbol="29" 29
+ ret:symbol="30" 30
+ ret:symbol="31" 31
+ ret:symbol="32" 32
+ ret:symbol="33" 33
+ ret:symbol="34" 34
+ ret:symbol="35" 35
+ ret:symbol="36" 36
+ ret:symbol="37" 37
+ ret:symbol="38" 38
+ ret:symbol="39" 39
+ ret:symbol="40" 40
+ ret:symbol="41" 41
+ ret:symbol="42" 42
+ ret:symbol="43" 43
+ ret:symbol="44" 44
+ ret:symbol="45" 45
+ ret:symbol="46" 46
+ ret:symbol="47" 47
+ ret:symbol="48" 48
+ ret:symbol="49" 49
+ ret:symbol="50" 50
+ ret:symbol="51" 51
+ ret:symbol="52" 52
+ ret:symbol="53" 53
+ ret:symbol="54" 54
+ ret:symbol="55" 55
+ ret:symbol="56" 56
+ ret:symbol="57" 57
+ ret:symbol="58" 58
+ ret:symbol="59" 59
+ ret:symbol="60" 60
+ ret:symbol="61" 61
+ ret:symbol="62" 62
+ ret:symbol="63" 63
+ ret:symbol="64" 64
+ ret:symbol="65" 65
+ ret:symbol="66" 66
+ ret:symbol="67" 67
+ ret:symbol="68" 68
+ ret:symbol="69" 69
+ ret:symbol="70" 70
+ ret:symbol="71" 71
+ ret:symbol="72" 72
+ ret:symbol="73" 73
+ ret:symbol="74" 74
+ ret:symbol="75" 75
+ ret:symbol="76" 76
+ ret:symbol="77" 77
+ ret:symbol="78" 78
+ ret:symbol="79" 79
+ ret:symbol="80" 80
+ ret:symbol="81" 81
+ ret:symbol="82" 82
+ ret:symbol="83" 83
+ ret:symbol="84" 84
+ ret:symbol="85" 85
+ ret:symbol="86" 86
+ ret:symbol="87" 87
+ ret:symbol="88" 88
+ ret:symbol="89" 89
+ ret:symbol="90" 90
+ ret:symbol="91" 91
+ ret:symbol="92" 92
+ ret:symbol="93" 93
+ ret:symbol="94" 94
+ ret:symbol="95" 95
+ ret:symbol="96" 96
+ ret:symbol="97" 97
+ ret:symbol="98" 98
+ ret:symbol="99" 99
+ ret ""
+]]></Implementation>
+</Method>
+
+<Method name="GetCodeLineForValue">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>value:%String</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+ ret:value=0 212222
+ ret:value=1 222122
+ ret:value=2 222221
+ ret:value=3 121223
+ ret:value=4 121322
+ ret:value=5 131222
+ ret:value=6 122213
+ ret:value=7 122312
+ ret:value=8 132212
+ ret:value=9 221213
+ ret:value=10 221312
+ ret:value=11 231212
+ ret:value=12 112232
+ ret:value=13 122132
+ ret:value=14 122231
+ ret:value=15 113222
+ ret:value=16 123122
+ ret:value=17 123221
+ ret:value=18 223211
+ ret:value=19 221132
+ ret:value=20 221231
+ ret:value=21 213212
+ ret:value=22 223112
+ ret:value=23 312131
+ ret:value=24 311222
+ ret:value=25 321122
+ ret:value=26 321221
+ ret:value=27 312212
+ ret:value=28 322112
+ ret:value=29 322211
+ ret:value=30 212123
+ ret:value=31 212321
+ ret:value=32 232121
+ ret:value=33 111323
+ ret:value=34 131123
+ ret:value=35 131321
+ ret:value=36 112313
+ ret:value=37 132113
+ ret:value=38 132311
+ ret:value=39 211313
+ ret:value=40 231113
+ ret:value=41 231311
+ ret:value=42 112133
+ ret:value=43 112331
+ ret:value=44 132131
+ ret:value=45 113123
+ ret:value=46 113321
+ ret:value=47 133121
+ ret:value=48 313121
+ ret:value=49 211331
+ ret:value=50 231131
+ ret:value=51 213113
+ ret:value=52 213311
+ ret:value=53 213131
+ ret:value=54 311123
+ ret:value=55 311321
+ ret:value=56 331121
+ ret:value=57 312113
+ ret:value=58 312311
+ ret:value=59 332111
+ ret:value=60 314111
+ ret:value=61 221411
+ ret:value=62 431111
+ ret:value=63 111224
+ ret:value=64 111422
+ ret:value=65 121124
+ ret:value=66 121421
+ ret:value=67 141122
+ ret:value=68 141221
+ ret:value=69 112214
+ ret:value=70 112412
+ ret:value=71 122114
+ ret:value=72 122411
+ ret:value=73 142112
+ ret:value=74 142211
+ ret:value=75 241211
+ ret:value=76 221114
+ ret:value=77 413111
+ ret:value=78 241112
+ ret:value=79 134111
+ ret:value=80 111242
+ ret:value=81 121142
+ ret:value=82 121241
+ ret:value=83 114212
+ ret:value=84 124112
+ ret:value=85 124211
+ ret:value=86 411212
+ ret:value=87 421112
+ ret:value=88 421211
+ ret:value=89 212141
+ ret:value=90 214121
+ ret:value=91 412121
+ ret:value=92 111143
+ ret:value=93 111341
+ ret:value=94 131141
+ ret:value=95 114113
+ ret:value=96 114311
+ ret:value=97 411113
+ ret:value=98 411311
+ ret:value=99 113141
+ ret:value=100 114131
+ ret:value=101 311141
+ ret:value=102 411131
+ ret:value=103 211412
+ ret:value=104 211214
+ ret:value=105 211232
+ ret:value=106 2331112
+ ret ""
+]]></Implementation>
+</Method>
+</Class>
+</Export>
