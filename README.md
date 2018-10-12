@@ -19,7 +19,7 @@ https://www.webcitation.org/66t8IbBVl?url=http://tradepilot.ru/goods-marks/code1
 - черная полоса 3 у.е. толщины
 - ...
 
-2. Отрисовка этой последовательности в HTML\
+2. Отрисовка этой последовательности в HTML
 ```
 >w ##class(Lib.BarCode128).GenerateHtml("2112321122321311231212412331112")
 ```
