@@ -125,8 +125,9 @@ w ##class(Lib.BarCode128).GetCodeLineForText("123456789")</Description>
 <FormalSpec>symbol:%String</FormalSpec>
 <ReturnType>%String</ReturnType>
 <Implementation><![CDATA[
- ret:$l(symbol)>2 ""
- ret $tr($j(symbol,2)," ",0)
+ ret:$l(symbol)'=2 ""
+ ret:$tr(symbol,"0123456789")'="" ""
+ ret +symbol
 ]]></Implementation>
 </Method>
 
