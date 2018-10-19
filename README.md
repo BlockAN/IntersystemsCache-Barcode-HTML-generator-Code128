@@ -33,7 +33,6 @@ http://localhost:57772/csp/user/testbarcode.csp?barcode=12345
 Содержимое testbarcode.csp:
 
 ```html
-<code>
 <html>
 <head>
 </head>
@@ -43,5 +42,4 @@ http://localhost:57772/csp/user/testbarcode.csp?barcode=12345
 </div>
 </body>
 </html>
-</code>
 ```
